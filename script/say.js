@@ -33,7 +33,7 @@ module.exports.run = async function({ api, event, args }) {
 };
 
 function detectLanguage(content) {
-	const supportedLanguages = ["ru", "en", "ko", "ja", "tl","fr"];
+	const supportedLanguages = ["ag", "en" , "fr"];
 	for (const lang of supportedLanguages) {
 		if (content.startsWith(lang)) {
 			return lang;
