@@ -27,4 +27,4 @@ module.exports = {
                 return r(e.message)
             }
     }
-}￼Enter
+};
