@@ -6,7 +6,7 @@ module.exports.config = {
   credits: "Developer",
   description: "Bot leaves the thread",
   usages: "out",
-  cooldowns: 10,
+  cooldowns: 12,
 
 };
 
