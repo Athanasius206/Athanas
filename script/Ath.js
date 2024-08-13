@@ -1,30 +1,60 @@
-const {get} = require('axios');
-const url = "http://eu4.diresnode.com:3301"; //available model: baymax_gpt, gojo_gpt
-module.exports = {
-    config: {
-        name: "Ath", //rename it if u want
-        hasPermssion: 0,
-        version: "1.0.0",
-        commandCategory: "AI",
-        credits: "Deku",
-        cooldowns: 0,
-        usages: "[ask]/clear to clear history",
-        usePrefix: false, 
-        description: "Talk to BAYMAX 1.2 (with continues conversation)"
-    },
-    run: async function({api, event, args}){
-            let prompt = args.join(' '), id = event.senderID;
-             function r(msg){
-                 api.sendMessage(msg, event.threadID, event.messageID)
-             }
-             
-            if(!prompt) return r("Missing input!\n\nIf you want to reset the conversation with "+this.config.name+" you can use “"+this.config.name+" clear”");
-            r("🔍…");
-            try {
-                const res = await get(url+"/baymax_gpt?prompt="+prompt+"&idd="+id);
-                return r(res.data.baymax);
-            } catch (e){
-                return r(e.message)
-            }
-    }
+const axios = require('axios');
+
+async function fetchFromAI(url, params) {
+  try {
+    const response = await axios.get(url, { params });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
+
+async function getAIResponse(input, userId, messageID) {
+  const services = [
+    { url: 'https://ai-chat-gpt-4-lite.onrender.com/api/hercai', params: { question: input } }
+  ];
+
+  let response = "Pose moi ta question.";
+  let currentIndex = 0;
+
+  for (let i = 0; i < services.length; i++) {
+    const service = services[currentIndex];
+    const data = await fetchFromAI(service.url, service.params);
+    if (data && (data.gpt4 || data.reply || data.response)) {
+      response = data.gpt4 || data.reply || data.response;
+      break;
+    }
+    currentIndex = (currentIndex + 1) % services.length; // Move to the next service in the cycle
+  }
+
+  return { response, messageID };
+}
+
+module.exports = {
+  config: {
+    name: 'ai',
+    author: 'walker',
+    role: 0,
+    category: 'ai',
+    shortDescription: 'ai to ask anything',
+  },
+  onStart: async function ({ api, event, args }) {
+    const input = args.join(' ').trim();
+    if (!input) {
+      api.sendMessage(`Ath\n━━━━━━━━━━━━\n Votre demande.. `, event.threadID, event.messageID);
+      return;
+    }
+
+    const { response, messageID } = await getAIResponse(input, event.senderID, event.messageID);
+    api.sendMessage(`Ath \n\n${response}`, event.threadID, messageID);
+  },
+  onChat: async function ({ event, message }) {
+    const messageContent = event.body.trim().toLowerCase();
+    if (messageContent.startsWith("ai")) {
+      const input = messageContent.replace(/^ai\s*/, "").trim();
+      const { response, messageID } = await getAIResponse(input, event.senderID, message.messageID);
+      message.reply(`Ath \n━━━━━━━━━━━━ \n${response}\n`, messageID);
+    }
+  }
+};
