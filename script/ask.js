@@ -1,8 +1,8 @@
 const fonts = {
-  a: "𝖺", b: "𝖻", c: "𝖼", d: "𝖽", e: "𝖾", f: "𝖿", g: "𝗀", h: "𝗁",
-  i: "𝗂", j: "𝗃", k: "𝗄", l: "𝗅", m: "𝗆", n: "𝗇", o: "𝗈", 
-  p: "𝗉", q: "𝗊", r: "𝗋", s: "𝗌", t: "𝗍", u: "𝗎", v: "𝗏", 
-  w: "𝗐", x: "𝗑", y: "𝗒", z: "𝗓" 
+  a: "a", b: "b", c: "c", d: "d", e: "e", f: "f", g: "g", h: "h",
+  i: "i", j: "j", k: "k", l: "l", m: "m", n: "n", o: "o", 
+  p: "p", q: "q", r: "r", s: "s", t: "t", u: "u", v: "v", 
+  w: "w", x: "x", y: "y", z: "z" 
 };
 
 const axios = require('axios');
@@ -37,7 +37,7 @@ module.exports.run = async function ({ api, event, args }) {
       }
     }
 
-    await api.sendMessage(`📝ATH \n━━━━━━━━━━━\n${formattedAnswer} ☕`, event.threadID);
+    await api.sendMessage(`📝ATH \n━━━━━━━━━━━\n${formattedAnswer} 🔎📝`, event.threadID);
   } catch (error) {
     console.error("Error:", error.message);
   }
