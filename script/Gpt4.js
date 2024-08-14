@@ -1,60 +1,44 @@
+const fonts = {
+  a: "A", b: "B", c: "C", d: "D", e: "E", f: "F", g: "G", h: "H",
+  i: "I", j: "J", k: "K", l: "L", m: "M", n: "N", o: "O", 
+  p: "P", q: "Q", r: "R", s: "S", t: "T", u: "U", v: "V", 
+  w: "W", x: "X", y: "Y", z: "Z" 
+};
+
 const axios = require('axios');
 
-async function fetchFromAI(url, params) {
+module.exports.config = {
+  name: "ai",
+  version: 1.0,
+  credits: "aesther",//Api OtinXsandip
+  description: "AI",
+  hasPrefix: false,
+  usages: "{pn} [prompt]",
+  aliases: ["ai2", "bot"],
+  cooldown: 0,
+};
+
+module.exports.run = async function ({ api, event, args }) {
   try {
-    const response = await axios.get(url, { params });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
-async function getAIResponse(input, userId, messageID) {
-  const services = [
-    { url: 'https://ai-chat-gpt-4-lite.onrender.com/api/hercai', params: { question: input } }
-  ];
-
-  let response = "Pose moi ta question.";
-  let currentIndex = 0;
-
-  for (let i = 0; i < services.length; i++) {
-    const service = services[currentIndex];
-    const data = await fetchFromAI(service.url, service.params);
-    if (data && (data.gpt4 || data.reply || data.response)) {
-      response = data.gpt4 || data.reply || data.response;
-      break;
-    }
-    currentIndex = (currentIndex + 1) % services.length; // Move to the next service in the cycle
-  }
-
-  return { response, messageID };
-}
-
-module.exports = {
-  config: {
-    name: 'ai',
-    author: 'walker',
-    role: 0,
-    category: 'ai',
-    shortDescription: 'ai to ask anything',
-  },
-  onStart: async function ({ api, event, args }) {
-    const input = args.join(' ').trim();
-    if (!input) {
-      api.sendMessage(`ʕATHʔ\n━━━━━━━━━━━━\n Votre demande.. `, event.threadID, event.messageID);
+    const prompt = args.join(" ");
+    if (!prompt) {
+      await api.sendMessage("📝ATH \n━━━━━━━━━━━\n Salut! Comment puis-je vous aider?", event.threadID);
       return;
     }
+    const response = await axios.get(`https://ai-chat-gpt-4-lite.onrender.com/api/hercai',=${encodeURIComponent(prompt)}`);
+    const answer = response.data.answer;
 
-    const { response, messageID } = await getAIResponse(input, event.senderID, event.messageID);
-    api.sendMessage(`ʕATHʔ \n\n${response}`, event.threadID, messageID);
-  },
-  onChat: async function ({ event, message }) {
-    const messageContent = event.body.trim().toLowerCase();
-    if (messageContent.startsWith("ai")) {
-      const input = messageContent.replace(/^ai\s*/, "").trim();
-      const { response, messageID } = await getAIResponse(input, event.senderID, message.messageID);
-      message.reply(`ʕATHʔ\n━━━━━━━━━━━━ \n${response}\n`, messageID);
+    let formattedAnswer = "";
+    for (let char of answer) {
+      if (fonts[char.toLowerCase()]) {
+        formattedAnswer += fonts[char.toLowerCase()];
+      } else {
+        formattedAnswer += char;
+      }
     }
+
+    await api.sendMessage(`📝ATH \n━━━━━━━━━━━\n${formattedAnswer} 🔎📝`, event.threadID);
+  } catch (error) {
+    console.error("Error:", error.message);
   }
-};
+};￼Enter
